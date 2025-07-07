@@ -1,0 +1,41 @@
+{
+  "name": "framer-filters",
+  "version": "1.0.0",
+  "description": "A visual image filter toolkit for Framer with 30+ CSS-based filters, live preview, adjustable sliders, and export functionality.",
+  "main": "FramerFilters.jsx",
+  "module": "FramerFilters.jsx",
+  "author": "Bills Walls",
+  "license": "MIT",
+  "keywords": [
+    "framer",
+    "framer-motion",
+    "image",
+    "filters",
+    "css-filters",
+    "photo-editing",
+    "visual-effects",
+    "image-processing",
+    "design-tools"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/totebee/framer-filters.git"
+  },
+  "peerDependencies": {
+    "react": ">=17.0.0",
+    "react-dom": ">=17.0.0",
+    "framer-motion": ">=6.0.0"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build"
+  },
+  "framer": {
+    "id": "framer-filters",
+    "displayName": "Framer Filters",
+    "description": "Apply 30+ beautiful image filters with live preview, adjustable sliders, and export functionality.",
+    "author": "Bills Walls",
+    "keywords": ["image", "filters", "photo", "effects", "css"],
+    "repository": "https://github.com/totebee/framer-filters"
+  }
+} 
