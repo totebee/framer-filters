@@ -1,4 +1,6 @@
 export const FILTERS = [
+  // Custom Filter (for building from scratch)
+  { name: "Custom", css: "" },
   // Basic Filters
   { name: "Grayscale", css: "grayscale(100%)" },
   { name: "Sepia", css: "sepia(100%)" },

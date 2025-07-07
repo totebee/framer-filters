@@ -1,28 +1,30 @@
 {
   "id": "framer-filters",
   "name": "Framer Filters",
-  "description": "Apply 30+ beautiful image filters with live preview, adjustable sliders, and export functionality.",
+  "description": "Apply 30+ beautiful image filters with live preview, adjustable sliders, and export functionality. Perfect for designers who want professional image effects without leaving Framer.",
   "author": "Bills Walls",
   "version": "1.0.0",
   "repository": "https://github.com/totebee/framer-filters",
-  "keywords": ["image", "filters", "photo", "effects", "css"],
+  "keywords": ["image", "filters", "photo", "effects", "css", "design", "visual", "editing"],
   "main": "FramerFilters.jsx",
   "components": [
     {
       "name": "FramerFilters",
       "displayName": "Framer Filters",
-      "description": "A visual image filter toolkit with 30+ CSS-based filters",
+      "description": "A comprehensive image filter toolkit with 30+ CSS-based filters, live preview, adjustable sliders, custom presets, and export functionality.",
       "properties": {
         "imageUrl": {
           "type": "string",
           "title": "Image URL",
-          "description": "URL of the image to apply filters to",
+          "description": "URL of the image to apply filters to. Supports any image format (JPG, PNG, WebP, etc.)",
           "default": "https://images.unsplash.com/photo-1506744038136-46273834b3fb"
         }
       },
       "defaultProps": {
         "imageUrl": "https://images.unsplash.com/photo-1506744038136-46273834b3fb"
-      }
+      },
+      "category": "Media",
+      "keywords": ["image", "filter", "photo", "effect", "css", "visual", "editing"]
     }
   ]
 } 
