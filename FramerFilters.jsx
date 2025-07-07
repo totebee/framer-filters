@@ -34,6 +34,7 @@ const SLIDER_CONFIG = {
 export function FramerFilters({ imageUrl }) {
   const [selected, setSelected] = React.useState(0);
   const [imageError, setImageError] = React.useState(false);
+  const [isExporting, setIsExporting] = React.useState(false);
   const filter = FILTERS[selected];
   
   // Check if filter has adjustable values
@@ -70,13 +71,21 @@ export function FramerFilters({ imageUrl }) {
     setImageError(true);
   };
 
+  // Handle keyboard navigation
+  const handleKeyDown = (e, index) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      setSelected(index);
+    }
+  };
+
   // Sliders for adjustable filters
   const sliders = Object.entries(customValues)
     .filter(([k]) => SLIDER_CONFIG[k])
     .map(([k, v]) => {
       const config = SLIDER_CONFIG[k];
-      // Remove unit for slider value
-      let value = v.replace(config.unit, "");
+      // Fix: Extract numeric value properly using regex
+      let value = v.replace(new RegExp(config.unit + '$'), '');
       return (
         <div key={k} style={{ margin: "8px 0" }}>
           <label style={{ fontSize: 13 }} htmlFor={`slider-${k}`}>
@@ -102,21 +111,39 @@ export function FramerFilters({ imageUrl }) {
 
   // Export filtered image as PNG
   const handleExport = async () => {
-    if (imageError) {
-      alert("Cannot export: Image failed to load");
+    if (imageError || isExporting) {
       return;
     }
     
-    const img = new window.Image();
-    img.crossOrigin = "anonymous";
-    img.src = imageUrl;
-    img.onload = () => {
+    setIsExporting(true);
+    
+    try {
+      const img = new window.Image();
+      img.crossOrigin = "anonymous";
+      img.src = imageUrl;
+      
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+      });
+      
+      // Limit canvas size to prevent memory issues
+      const maxSize = 2048;
+      let { width, height } = img;
+      
+      if (width > maxSize || height > maxSize) {
+        const ratio = Math.min(maxSize / width, maxSize / height);
+        width = Math.floor(width * ratio);
+        height = Math.floor(height * ratio);
+      }
+      
       const canvas = document.createElement("canvas");
-      canvas.width = img.width;
-      canvas.height = img.height;
+      canvas.width = width;
+      canvas.height = height;
       const ctx = canvas.getContext("2d");
       ctx.filter = filterString;
-      ctx.drawImage(img, 0, 0);
+      ctx.drawImage(img, 0, 0, width, height);
+      
       canvas.toBlob(blob => {
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
@@ -124,11 +151,14 @@ export function FramerFilters({ imageUrl }) {
         a.download = "filtered-image.png";
         a.click();
         URL.revokeObjectURL(url);
-      }, "image/png");
-    };
-    img.onerror = () => {
-      alert("Cannot export: Image failed to load");
-    };
+        setIsExporting(false);
+      }, "image/png", 0.9);
+      
+    } catch (error) {
+      console.error("Export failed:", error);
+      alert("Export failed. Please try again.");
+      setIsExporting(false);
+    }
   };
 
   // Save preset
@@ -175,8 +205,10 @@ export function FramerFilters({ imageUrl }) {
               fontSize: 14
             }}
             onClick={() => setSelected(i)}
+            onKeyDown={(e) => handleKeyDown(e, i)}
             aria-label={`Apply ${f.name} filter`}
             aria-pressed={selected === i}
+            tabIndex={0}
           >
             {f.name}
           </button>
@@ -241,21 +273,21 @@ export function FramerFilters({ imageUrl }) {
       <div style={{ textAlign: "center", marginTop: 16 }}>
         <button
           onClick={handleExport}
-          disabled={imageError}
+          disabled={imageError || isExporting}
           style={{
             padding: "8px 18px",
-            background: imageError ? "#ccc" : "#0070f3",
+            background: (imageError || isExporting) ? "#ccc" : "#0070f3",
             color: "#fff",
             border: "none",
             borderRadius: 6,
             fontWeight: 600,
             fontSize: 15,
-            cursor: imageError ? "not-allowed" : "pointer",
+            cursor: (imageError || isExporting) ? "not-allowed" : "pointer",
             boxShadow: "0 1px 4px rgba(0,0,0,0.07)"
           }}
           aria-label="Export filtered image as PNG"
         >
-          Export as PNG
+          {isExporting ? "Exporting..." : "Export as PNG"}
         </button>
       </div>
       {/* Preset Save/Load UI */}
@@ -267,6 +299,7 @@ export function FramerFilters({ imageUrl }) {
               placeholder="Preset name"
               value={presetName}
               onChange={e => setPresetName(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleSavePreset()}
               style={{ padding: 6, borderRadius: 4, border: "1px solid #ccc", width: 140, marginRight: 8 }}
               aria-label="Enter preset name"
             />
