@@ -3,6 +3,7 @@ import { FILTERS } from "./filters";
 
 // Helper: parse CSS filter string into an object
 function parseFilterString(str) {
+  if (!str) return {};
   const regex = /(\w+)-?(\w+)?\(([^)]+)\)/g;
   let match, result = {};
   while ((match = regex.exec(str))) {
@@ -37,8 +38,9 @@ export function FramerFilters({ imageUrl }) {
   const [isExporting, setIsExporting] = React.useState(false);
   const filter = FILTERS[selected];
   
-  // Check if filter has adjustable values
+  // Check if filter has adjustable values or is Custom
   const hasAdjustableValues = (filter) => {
+    if (filter.name === "Custom") return true;
     const values = parseFilterString(filter.css);
     return Object.keys(values).some(key => SLIDER_CONFIG[key]);
   };
@@ -46,7 +48,12 @@ export function FramerFilters({ imageUrl }) {
   const isCustomizable = hasAdjustableValues(filter);
 
   // State for adjustable values
-  const [customValues, setCustomValues] = React.useState(() => parseFilterString(filter.css));
+  const [customValues, setCustomValues] = React.useState(() => {
+    if (filter.name === "Custom") {
+      return { brightness: "1", contrast: "100%", saturate: "100%" };
+    }
+    return parseFilterString(filter.css);
+  });
 
   // Presets state (localStorage)
   const [presets, setPresets] = React.useState(() => {
@@ -59,7 +66,11 @@ export function FramerFilters({ imageUrl }) {
   const [presetName, setPresetName] = React.useState("");
 
   React.useEffect(() => {
-    setCustomValues(parseFilterString(filter.css));
+    if (filter.name === "Custom") {
+      setCustomValues({ brightness: "1", contrast: "100%", saturate: "100%" });
+    } else {
+      setCustomValues(parseFilterString(filter.css));
+    }
     setImageError(false);
   }, [selected]);
 
